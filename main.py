@@ -160,6 +160,9 @@ if "display_messages" not in st.session_state:
 if "session_id" not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
 
+if "telefono" not in st.session_state:
+    st.session_state.telefono = "555555555"
+
 for message in st.session_state.display_messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
