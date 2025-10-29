@@ -16,15 +16,14 @@ import os
 import streamlit as st
 import time
 
-load_dotenv()
-
-deploy = False
+deploy = True
 
 if deploy:
     anthropic_api_key = st.secrets["ANTHROPIC_API_KEY"]
     MODEL_NAME = st.secrets["ANTHROPIC_MODEL_NAME"]
 
 else:
+    load_dotenv()
     anthropic_api_key: str = os.getenv('ANTHROPIC_API_KEY')
     MODEL_NAME = os.getenv('ANTHROPIC_MODEL_NAME')
 

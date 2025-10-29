@@ -12,9 +12,7 @@ import pytz
 import streamlit as st
 import time
 
-load_dotenv()
-
-deploy = False
+deploy = True
 
 if deploy:
     anthropic_api_key = st.secrets["ANTHROPIC_API_KEY"]
@@ -28,6 +26,7 @@ if deploy:
     QDRANT_COLLECTION_NAME = st.secrets["QDRANT_COLLECTION_NAME"]
 
 else:
+    load_dotenv()
     anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
     MODEL_NAME = os.getenv("ANTHROPIC_MODEL_NAME")
     openai_api_key = os.getenv('OPENAI_API_KEY')
