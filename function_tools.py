@@ -12,7 +12,7 @@ import pytz
 import streamlit as st
 import time
 
-deploy = True
+deploy = False
 
 if deploy:
     anthropic_api_key = st.secrets["ANTHROPIC_API_KEY"]
@@ -166,6 +166,42 @@ def get_mexico_city_time():
     mexico_city_time = utc_time.astimezone(mexico_city_timezone)
     formatted_time = mexico_city_time.strftime('%A, %Y-%m-%d %H:%M')
     return formatted_time
+
+def agregar_punto_individual(texto, nombre, client_qdrant=qdrant_client, COLECCION=QDRANT_COLLECTION_NAME):
+    try:
+        # Obtener el último ID de la colección
+        resultado = client_qdrant.scroll(
+            collection_name=COLECCION,
+            limit=1,
+            with_payload=False,
+            with_vectors=False,
+            order_by="id"
+        )
+
+        # Si hay puntos, tomar el último ID y sumar 1, sino empezar en 0
+        if resultado[0]:
+            ultimo_id = max([punto.id for punto in resultado[0]]) if resultado[0] else -1
+            nuevo_id = ultimo_id + 1
+        else:
+            nuevo_id = 0
+
+        vector = create_embeddings(texto)
+
+        punto = PointStruct(
+            id=nuevo_id,
+            vector={"embeddings": vector['answer']},
+            payload={
+                "nombre": nombre,
+                "texto": texto
+            }
+        )
+
+        client_qdrant.upsert(collection_name=COLECCION, points=[punto])
+
+        return {"success": True, "id": nuevo_id, "message": "Información agregada de forma exitosa."}
+
+    except Exception as e:
+        return {"success": False, "message": f"Error: {str(e)}"}
 
 if __name__ == "__main__":
 

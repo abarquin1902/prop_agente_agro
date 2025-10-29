@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 from function_tools import (
     get_text_by_relevance,
     get_mexico_city_time, 
-    categorizador_datosCompletos
+    categorizador_datosCompletos, 
+    agregar_punto_individual
 )
 from supabase import create_client, Client
 from system_prompt import prompt_first_response, prompt_saludo
@@ -18,7 +19,7 @@ import streamlit as st
 import time
 import uuid
 
-deploy = True
+deploy = False
 
 if deploy:
     anthropic_api_key = st.secrets["ANTHROPIC_API_KEY"]
@@ -47,8 +48,6 @@ def guardar_mensaje(session_id, telefono, tipo, mensaje,supabase=supabase_client
     print("Menssaje almacenado con éxito en Supabase.")
 
 prompt_first_response += f'Esta es la fecha actual: {get_mexico_city_time()}'
-
-
 
 def responder_usuario(messages, query, telefono="555555555", id_conversacion="", system_prompt=prompt_first_response, model_name=MODEL_NAME, url_base=WEBHOOK_RENDER):
 
@@ -149,7 +148,35 @@ def responder_usuario(messages, query, telefono="555555555", id_conversacion="",
     #     'id_conversacion':id_conversacion
     # }
 
-st.title("Chatea con el Agente de Agrobotanix")
+st.set_page_config(page_title="Agente Agrobotanix", layout="wide")
+
+with st.sidebar:
+    st.header("🔧 Conocimientos del Agente")
+    
+    with st.expander("➕ Agregar información"):
+        nuevo_nombre = st.text_input("Nombre/Título:", key="nombre_nuevo")
+        nuevo_texto = st.text_area("Texto a agregar:", height=150, key="texto_nuevo")
+        
+        if st.button("💾 Guardar en colección", type="primary"):
+            if nuevo_texto and nuevo_nombre:
+                with st.spinner("Guardando..."):
+                    resultado = agregar_punto_individual(nuevo_texto, nuevo_nombre)
+                    
+                    if resultado["success"]:
+                        st.success(f"✅ Información agregada con ID: {resultado['id']}")
+                        # Limpiar campos
+                        st.session_state.nombre_nuevo = ""
+                        st.session_state.texto_nuevo = ""
+                    else:
+                        st.error(f"❌ {resultado['message']}")
+            else:
+                st.warning("⚠️ Por favor completa ambos campos")
+    
+    with st.expander("🗑️ Eliminar información"):
+        # Falta la funcion de qdrant para poder eliminar un punto 
+        pass
+
+st.title("Conversa conmigo - Agrobotanix")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
