@@ -2,12 +2,13 @@
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
-from system_prompt import prompt_first_response, prompt_saludo
 from function_tools import (
     get_text_by_relevance,
     get_mexico_city_time, 
     categorizador_datosCompletos
 )
+from supabase import create_client, Client
+from system_prompt import prompt_first_response, prompt_saludo
 from tools import tools
 
 import base64
@@ -15,22 +16,39 @@ import httpx
 import os
 import streamlit as st
 import time
+import uuid
 
 deploy = True
 
 if deploy:
     anthropic_api_key = st.secrets["ANTHROPIC_API_KEY"]
     MODEL_NAME = st.secrets["ANTHROPIC_MODEL_NAME"]
+    supabase_api_key = st.secrets["SUPABASE_API_KEY"]
+    supabase_url = st.secrets["SUPABASE_URL"]
 
 else:
     load_dotenv()
     anthropic_api_key: str = os.getenv('ANTHROPIC_API_KEY')
     MODEL_NAME = os.getenv('ANTHROPIC_MODEL_NAME')
+    supabase_api_key = os.getenv('SUPABASE_API_KEY')
+    supabase_url = os.getenv('SUPABASE_URL')
 
 client = Anthropic(api_key=anthropic_api_key)
 WEBHOOK_RENDER = ""
+supabase_client: Client = create_client(supabase_url, supabase_api_key)
+
+def guardar_mensaje(session_id, telefono, tipo, mensaje,supabase=supabase_client):
+    supabase.table('tbl_agrobotanix').insert({
+        'session_id': session_id,
+        'telefono': telefono,
+        'tipo': tipo,
+        'mensaje': mensaje
+    }).execute()
+    print("Menssaje almacenado con éxito en Supabase.")
 
 prompt_first_response += f'Esta es la fecha actual: {get_mexico_city_time()}'
+
+
 
 def responder_usuario(messages, query, telefono="555555555", id_conversacion="", system_prompt=prompt_first_response, model_name=MODEL_NAME, url_base=WEBHOOK_RENDER):
 
@@ -139,6 +157,9 @@ if "messages" not in st.session_state:
 if "display_messages" not in st.session_state:
     st.session_state.display_messages = []
 
+if "session_id" not in st.session_state:
+    st.session_state.session_id = str(uuid.uuid4())
+
 for message in st.session_state.display_messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
@@ -148,9 +169,13 @@ if prompt := st.chat_input("Escribe tu mensaje"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    guardar_mensaje(st.session_state.session_id, st.session_state.telefono, 'user', prompt)
+
     with st.chat_message("assistant"):
         response_text, updated_messages = responder_usuario(st.session_state.messages, prompt)
         st.markdown(response_text)
-    
+
     st.session_state.messages = updated_messages
     st.session_state.display_messages.append({"role": "assistant", "content": response_text})
+
+    guardar_mensaje(st.session_state.session_id, st.session_state.telefono, 'assistant', response_text)

@@ -178,8 +178,8 @@ if __name__ == "__main__":
             y garantizamos que no hacen daño a los polinizadores ni dejan 
             infertil la tierra.
             Nuestro producto Agroquer , garantiza que con dos simples 
-            aplicaciones a tus cultivos, podrás eliminar enfermedades como la 
-            microfamina y la phytoptora.
+            aplicaciones a tus cultivos, podrás eliminar enfermedades como los 
+            Xanthomonas y la phytoptora.
             """
         },
         {
