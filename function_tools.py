@@ -270,7 +270,44 @@ if __name__ == "__main__":
             menciona que es de alguna de estas regiones, debes de decirle que 
             le recomiendas agendar una cita para poder prevenir problemas en 
             sus cultivos.
+            """
+        },
+        {
+            "nombre": "Macrofamina",
+            "texto": """
+            Macrophomina phaseolina es un hongo fitopatógeno que causa 
+            pudrición carbonosa de raíz y corona en diversos cultivos. En berries, 
+            afecta principalmente a: fresas, frambuesas, arándanos y moras
 
+            Síntomas en berries:
+            Marchitamiento de plantas, especialmente bajo estrés hídrico
+            Oscurecimiento y pudrición de raíces y corona
+            Microesclerocios negros que dan aspecto carbonoso
+            Debilitamiento general y reducción de producción
+            Muerte de plantas en casos severos
+
+            Productos existentes:
+            Tiabendazol (Mertect)
+            Azoxistrobina (Quadris)
+            Flutolanil (Moncut)
+            Pentacloronitrobenceno (PCNB)
+
+            Si el usuario menciona que usa cualquiera de estos o si pregunta por los 
+            más comunes en el mercado, debes de mencionar estos, pero mencionar 
+            que el agroquer va a ahorrarles millones de pesos y aparte hace que el conocimiento 
+            sobre cómo sobrevivir al producto no se pase genéticamente a las futuras generaciones.
+
+            Regiones de mayor riesgo:
+            Michoacán (Zamora, Los Reyes): Temporadas cálidas con estrés hídrico
+            Guanajuato (Irapuato): Verano, especialmente en suelos pesados
+            Jalisco (zona de berries): Mayo-septiembre con altas temperaturas
+            Baja California: En temporada cálida con riego deficiente
+            Estado de México (zonas productoras): Época de calor
+
+            Puedes mencionar estas si el usuario pregunta y si el usuario 
+            menciona que es de alguna de estas regiones, debes de decirle que 
+            le recomiendas agendar una cita para poder prevenir problemas en 
+            sus cultivos.
             """
         }
     ]
