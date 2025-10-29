@@ -33,7 +33,9 @@ WEBHOOK_RENDER = ""
 
 prompt_first_response += f'Esta es la fecha actual: {get_mexico_city_time()}'
 
-def responder_usuario(messages, data, telefono, id_conversacion="", system_prompt=prompt_first_response, model_name=MODEL_NAME, url_base=WEBHOOK_RENDER):
+def responder_usuario(messages, query, telefono="555555555", id_conversacion="", system_prompt=prompt_first_response, model_name=MODEL_NAME, url_base=WEBHOOK_RENDER):
+
+    data = {"body": query}
 
     new_messages = messages + [
         {"role": "user", "content": data["body"]}
@@ -118,39 +120,38 @@ def responder_usuario(messages, data, telefono, id_conversacion="", system_promp
         input_tokens += response.usage.input_tokens
         output_tokens += response.usage.output_tokens
         # print(response)
+    
+    return response.content[0].text, new_messages
 
-    return {
-        "answer": response.content[0].text,
-        "output": response.content,
-        "input_tokens": input_tokens,
-        "output_tokens": output_tokens,
-        'model_name':model_name,
-        'id_conversacion':id_conversacion
-    }
+    # return {
+    #     "answer": response.content[0].text,
+    #     "output": response.content,
+    #     "input_tokens": input_tokens,
+    #     "output_tokens": output_tokens,
+    #     'model_name':model_name,
+    #     'id_conversacion':id_conversacion
+    # }
 
-if __name__ == "__main__":
+st.title("Chatea con el Agente de Agrobotanix")
 
-    messages = []
-    while True:
-        query = input("\nUsuario (escribe 'salir' para terminar): ")
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-        if query.lower().strip() in ['salir']:
-            print("¡Hasta luego!")
-            break
+if "display_messages" not in st.session_state:
+    st.session_state.display_messages = []
 
-        data = {
-            'type': 'text',
-            'body': query
-        }
+for message in st.session_state.display_messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-        answer = responder_usuario(
-            messages=messages,
-            data=data,
-            telefono="5566098295",
-            id_conversacion="fff"
-        )
+if prompt := st.chat_input("Escribe tu mensaje"):
+    st.session_state.display_messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-        respuesta = answer
-        print(f"\nAsistente: {respuesta['answer']}")
-        # messages.append({'role': 'assistant', 'content': answer['answer']['respuesta']})
-        messages.append({'role': 'assistant', 'content': answer['answer']})
+    with st.chat_message("assistant"):
+        response_text, updated_messages = responder_usuario(st.session_state.messages, prompt)
+        st.markdown(response_text)
+    
+    st.session_state.messages = updated_messages
+    st.session_state.display_messages.append({"role": "assistant", "content": response_text})
