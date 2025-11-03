@@ -68,6 +68,11 @@ la estructura del suelo, ayudando a mantener su salud y fertilidad a largo plazo
 * Ataca las moléculas de los patógenos, para que en su carga genética no hereden 
 la ressitencia al producto, además hace que se destruyan ellos mismos solos a nivel 
 celular porque ya no pueden tener la reproductividad.
+
+Se puede aplicar al método de cultivo tradicional , por aspersión o por medio de drones.
+
+Nuestro producto a diferencia de la competencia, te ahorrara miles de litros de agua 
+y millones de pesos al salvar tus cultivos enfermos.
 """
 
 # system_prompt = f"""
