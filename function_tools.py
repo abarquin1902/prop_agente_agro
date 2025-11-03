@@ -13,7 +13,7 @@ import pytz
 import streamlit as st
 import time
 
-deploy = False
+deploy = True
 
 if deploy:
     anthropic_api_key = st.secrets["ANTHROPIC_API_KEY"]

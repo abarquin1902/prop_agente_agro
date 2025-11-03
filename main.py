@@ -19,7 +19,7 @@ import streamlit as st
 import time
 import uuid
 
-deploy = False
+deploy = True
 
 if deploy:
     anthropic_api_key = st.secrets["ANTHROPIC_API_KEY"]
@@ -81,8 +81,6 @@ def responder_usuario(messages, query, telefono="555555555", id_conversacion="",
             tool_use = next(block for block in response.content if block.type == "tool_use")
             tool_name = tool_use.name
             tool_input = tool_use.input
-            # print('tool_use', tool_use)
-            # print('tool_name', tool_name)
         except:
             print('Error')
 
