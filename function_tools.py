@@ -13,7 +13,7 @@ import pytz
 import streamlit as st
 import time
 
-deploy = False
+deploy = True
 
 if deploy:
     anthropic_api_key = st.secrets["ANTHROPIC_API_KEY"]
@@ -152,12 +152,23 @@ def get_text_by_relevance(consulta, cliente=qdrant_client, coleccion=QDRANT_COLL
     )
     print(resultado_busqueda)
 
+    aux_texto = ""
     for resultado in resultado_busqueda:
+        aux_texto += f"Enfermedad: {resultado.payload['enfermedad']} \n"
+        aux_texto += f"Variedad: {resultado.payload['variedad']} \n"
+        aux_texto += f"Ubicación: {resultado.payload['ubicacion']} \n"
+        aux_texto += f"Municipio: {resultado.payload['municipio']} \n"
+        aux_texto += f"Síntomas: {resultado.payload['sintomas']} \n"
+        aux_texto += f"Patógeno: {resultado.payload['patogeno']} \n"
+        aux_texto += f"Cultivo: {resultado.payload['cultivo']} \n"
+        aux_texto += f"Competencia: {resultado.payload['competencia']} \n"
+        aux_texto += f"Grado de dificultad para erradicar: {resultado.payload['grado_dificultad_erradicar']} \n"
+
         texto_relevante.append(
-            (resultado.payload["nombre"], resultado.payload["texto"], resultado.score)
+            (aux_texto, resultado.score)
         )
 
-    texto_relevante.sort(key=lambda x: x[2], reverse=True)
+    texto_relevante.sort(key=lambda x: x[1], reverse=True)
     return texto_relevante[:n]
 
 def get_mexico_city_time():
@@ -269,6 +280,11 @@ def insert_datos_pauta(secciones, client_qdrant=qdrant_client, COLECCION=QDRANT_
 
 if __name__ == "__main__":
 
-    file_path = "datos_pauta.xlsx"
-    datos_embeddear = read_spreadsheets_data_and_generate_dict_embeds(file_path)
-    insert_datos_pauta(datos_embeddear)
+    # Proceso para insertar los datos del spreadsheets en Qdrant
+    # file_path = "datos_pauta.xlsx"
+    # datos_embeddear = read_spreadsheets_data_and_generate_dict_embeds(file_path)
+    # insert_datos_pauta(datos_embeddear)
+
+    #Proceso para probar el obtener el texto por relevancia
+    consulta = "mi cultivo de arandanos se ve enfermo, que crees que pueda ser ? "
+    get_text_by_relevance(consulta)

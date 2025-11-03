@@ -19,7 +19,7 @@ import streamlit as st
 import time
 import uuid
 
-deploy = False
+deploy = True
 
 if deploy:
     anthropic_api_key = st.secrets["ANTHROPIC_API_KEY"]
