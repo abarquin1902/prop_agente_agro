@@ -8,6 +8,7 @@ from qdrant_client import models, QdrantClient
 from qdrant_client.models import PointStruct
 
 import os
+import pandas as pd
 import pytz
 import streamlit as st
 import time
@@ -203,149 +204,71 @@ def agregar_punto_individual(texto, nombre, client_qdrant=qdrant_client, COLECCI
     except Exception as e:
         return {"success": False, "message": f"Error: {str(e)}"}
 
+def read_spreadsheets_data_and_generate_dict_embeds(file_path):
+    df = pd.read_excel(file_path)
+
+    puntos_embeds = []
+    for _, row in df.iterrows():
+        texto_embed = f"""Enfermedad: {row['Enfermedad']} \n
+        Variedad: {row['Variedad']} \n
+        Ubicación: {row['Ubicacion']} \n
+        Patógeno: {row['Patogeno']}
+        """
+
+        dict_por_enfermedad = {
+            'texto_embeddings': texto_embed,
+            'datos_completos_punto': {
+                'enfermedad': row['Enfermedad'],
+                'variedad': row['Variedad'],
+                'ubicacion': row['Ubicacion'],
+                'municipio': row['Municipio'],
+                'sintomas': row['Sintomas'],
+                'patogeno': row['Patogeno'],
+                'cultivo': row['Cultivo'],
+                'competencia': row['Competencia'],
+                'grado_dificultad_erradicar': row['Grado de dificultad para erradicar']
+            }
+        }
+        puntos_embeds.append(dict_por_enfermedad)
+
+    return puntos_embeds
+
+def insert_datos_pauta(secciones, client_qdrant=qdrant_client, COLECCION=QDRANT_COLLECTION_NAME, dim=VECTOR_DIMENSION):
+    collections = client_qdrant.get_collections().collections
+    collection_names = [collection.name for collection in collections]
+
+    if COLECCION not in collection_names:
+        client_qdrant.create_collection(
+            collection_name=COLECCION,
+            vectors_config={
+                "embeddings": {
+                    "size": dim,
+                    "distance": "Cosine"
+                }
+            }
+        )
+        print(f"Colección '{COLECCION}' creada exitosamente.")
+
+    puntos = []
+    for index, seccion in enumerate(secciones):
+        vector = create_embeddings(seccion["texto_embeddings"]) 
+
+        punto = PointStruct(
+            id=index,
+            vector={"embeddings": vector['answer']},
+            payload=seccion['datos_completos_punto']
+            # payload={
+            #     "nombre": seccion["nombre"],
+            #     "texto": seccion["texto"]
+            # }
+        )
+        puntos.append(punto)
+
+    client_qdrant.upsert(collection_name=COLECCION, points=puntos)
+    print(f"{len(puntos)} secciones insertadas en Qdrant.")
+
 if __name__ == "__main__":
 
-    informacion = [
-        {
-            "nombre": "Información General del Negocio",
-            "texto": """
-            Nosotros somos Agrobotanix , una empresa dedicada a brindar soluciones 
-            para poder curar las enfermedades de berries mas comunes en cultivos 
-            y garantizamos que no hacen daño a los polinizadores ni dejan 
-            infertil la tierra.
-            Nuestro producto Agroquer , garantiza que con dos simples 
-            aplicaciones a tus cultivos, podrás eliminar enfermedades como los 
-            Xanthomonas y la phytoptora.
-            """
-        },
-        {
-            "nombre": "PHYTOPHTHORA",
-            "texto": """
-            Phytophthora es un género de oomicetos (organismos similares a hongos) 
-            que causa enfermedades devastadoras en berries. Es conocido como "el 
-            destructor de plantas" y prospera en condiciones de humedad.
-
-            Síntomas por Cultivo:
-            FRESA:
-
-            Marchitez súbita de plantas
-            Pudrición de corona (color café-rojizo)
-            Raíces con apariencia de "rata comida" (raicillas laterales muertas)
-            Pudrición de frutos (manchas café con textura correosa)
-            Hojas viejas se tornan rojas o amarillas
-
-            ARÁNDANO:
-
-            Crecimiento débil y amarillamiento
-            Pudrición de raíces (color negro, textura blanda)
-            Marchitez en temporada de calor
-            Muerte regresiva de ramas
-            Reducción drástica de producción
-
-            FRAMBUESA/ZARZAMORA:
-
-            Pudrición de raíz y corona
-            Marchitez de cañas
-            Amarillamiento progresivo
-            Muerte de plantas en manchones
-
-            Productos existentes preventivos (que se suelen aplicar antes de la infección):
-
-            Fosetil-Al (Aliette)
-            Ácidos fosforosos (Fosphite, K-Phite)
-            Metalaxil/Mefenoxam (Ridomil)
-            Fluopicolide + Fosetil-Al (Presidio)
-
-            Si el usuario menciona que usa cualquiera de estos o si pregunta por los 
-            mas comunes en el mercado , debes de mencionar estos, pero mencionar 
-            que el agroquer va a ahorrarles millones de pesos y aparte hace que el conocimiento 
-            sobre como sobrevivir al producto no se pase geneticamente a las futuras generaciones.
-
-            Regiones de riesgo en México:
-
-            Michoacán, Jalisco, Guanajuato: Temporada de lluvias (junio-octubre)
-            Baja California: Menos problema por clima seco
-            Zonas con riego por gravedad o aspersión: Mayor riesgo
-
-            Puedes mencionar estas si el usuario pregunta y si el usuario 
-            menciona que es de alguna de estas regiones, debes de decirle que 
-            le recomiendas agendar una cita para poder prevenir problemas en 
-            sus cultivos.
-
-            """
-        },
-        {
-            "nombre": "Xanthomonas",
-            "texto": """
-            Xanthomonas es un género de bacterias gram-negativas 
-            que causa enfermedades en muchos cultivos. En berries, la 
-            especie más importante es: Xanthomonas fragariae (fresa)
-
-            Síntomas en :
-            Manchas pequeñas café oscuro en aquenios (semillas)
-            Puede afectar calidad y vida de anaquel
-            En casos severos: pudrición secundaria de frutos
-
-            Productos existentes:
-            Hidróxido de cúprico (Kocide, Champion)
-            Oxicloruro de cobre
-            Sulfato de cobre pentahidratado
-
-            Si el usuario menciona que usa cualquiera de estos o si pregunta por los 
-            mas comunes en el mercado , debes de mencionar estos, pero mencionar 
-            que el agroquer va a ahorrarles millones de pesos y aparte hace que el conocimiento 
-            sobre como sobrevivir al producto no se pase geneticamente a las futuras generaciones.
-
-            Regiones de mayor riesgo:
-            Michoacán (Zamora, Los Reyes): Temporada fresca y lluviosa
-            Guanajuato (Irapuato): Primavera-otoño
-            Baja California (Zona costa): Menos problema pero puede ocurrir
-            Jalisco: En zonas de riego por aspersión
-
-            Puedes mencionar estas si el usuario pregunta y si el usuario 
-            menciona que es de alguna de estas regiones, debes de decirle que 
-            le recomiendas agendar una cita para poder prevenir problemas en 
-            sus cultivos.
-            """
-        },
-        {
-            "nombre": "Macrofamina",
-            "texto": """
-            Macrophomina phaseolina es un hongo fitopatógeno que causa 
-            pudrición carbonosa de raíz y corona en diversos cultivos. En berries, 
-            afecta principalmente a: fresas, frambuesas, arándanos y moras
-
-            Síntomas en berries:
-            Marchitamiento de plantas, especialmente bajo estrés hídrico
-            Oscurecimiento y pudrición de raíces y corona
-            Microesclerocios negros que dan aspecto carbonoso
-            Debilitamiento general y reducción de producción
-            Muerte de plantas en casos severos
-
-            Productos existentes:
-            Tiabendazol (Mertect)
-            Azoxistrobina (Quadris)
-            Flutolanil (Moncut)
-            Pentacloronitrobenceno (PCNB)
-
-            Si el usuario menciona que usa cualquiera de estos o si pregunta por los 
-            más comunes en el mercado, debes de mencionar estos, pero mencionar 
-            que el agroquer va a ahorrarles millones de pesos y aparte hace que el conocimiento 
-            sobre cómo sobrevivir al producto no se pase genéticamente a las futuras generaciones.
-
-            Regiones de mayor riesgo:
-            Michoacán (Zamora, Los Reyes): Temporadas cálidas con estrés hídrico
-            Guanajuato (Irapuato): Verano, especialmente en suelos pesados
-            Jalisco (zona de berries): Mayo-septiembre con altas temperaturas
-            Baja California: En temporada cálida con riego deficiente
-            Estado de México (zonas productoras): Época de calor
-
-            Puedes mencionar estas si el usuario pregunta y si el usuario 
-            menciona que es de alguna de estas regiones, debes de decirle que 
-            le recomiendas agendar una cita para poder prevenir problemas en 
-            sus cultivos.
-            """
-        }
-    ]
-    
-    insert_info_business(informacion)
+    file_path = "datos_pauta.xlsx"
+    datos_embeddear = read_spreadsheets_data_and_generate_dict_embeds(file_path)
+    insert_datos_pauta(datos_embeddear)
