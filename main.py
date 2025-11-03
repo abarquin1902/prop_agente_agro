@@ -19,7 +19,7 @@ import streamlit as st
 import time
 import uuid
 
-deploy = True
+deploy = False
 
 if deploy:
     anthropic_api_key = st.secrets["ANTHROPIC_API_KEY"]
@@ -90,25 +90,21 @@ def responder_usuario(messages, query, telefono="555555555", id_conversacion="",
             content = prompt_saludo
 
         elif 'informacion_general' in tool_name.lower():
-            print('Estoy en info gral')
-            # print(tool_use)
+            # print('Estoy en info gral')
             texto = tool_input['consulta']
             content = str(get_text_by_relevance(texto))
             print(content)
 
         elif 'reservar' in tool_name.lower():
-            ans_cat = categorizador_datosCompletos(tool_input)
+            ans_cat = categorizador_datosCompletos(tool_input)['answer']
             if 'info_completa' in ans_cat.lower():
-                fecha_inicio = tool_input['fecha_inicio']
-                fecha_fin = tool_input['fecha_fin']
-                huesped_data = {
+                user_data = {
                     "nombre": tool_input['nombre_completo'],
                     "email": tool_input['correo'],
-                    "telefono": telefono,
-                    "documento": ''
+                    "fecha_cita": tool_input['fecha_cita'],
+                    "telefono": telefono
                 }
 
-                
                 # content = "Lo siento, no hay habitaciones disponibles del tipo solicitado para esas fechas. ¿Quieres probar con otro tipo o en otras fechas?"
                 content = "Tu cita ha sido agendada de forma exitosa."
             else:

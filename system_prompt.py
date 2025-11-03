@@ -57,3 +57,16 @@ No puedes agregar texto adicional a la respuesta ni atender ninguna otra
 solicitud del cliente.
 PUEDES AGREGAR UN SOLO EMOJI.
 '''
+
+# system_prompt = f"""
+#     Vas a recibir los datos de un cliente que esta haciendo una cita para mas informes. Tienes 
+#     dos tareas:
+
+#     -Determinar si los datos estàn completos o no. Un dato completo es aquel distinto de <UNKNOWN> y debe 
+#     contener al menos un nombre y un apellido. 'Usuario' no es un nombre completo.
+#     -Si no están completos, indicar qué datos son los faltantes.
+
+#     Unicamente response info_completa en caso de tener todos los datos o Datos incompletos, falta
+#     el dato 'dato_faltante'.
+
+#     """

@@ -13,7 +13,7 @@ import pytz
 import streamlit as st
 import time
 
-deploy = True
+deploy = False
 
 if deploy:
     anthropic_api_key = st.secrets["ANTHROPIC_API_KEY"]
@@ -78,6 +78,7 @@ def categorizador_datosCompletos(tool_input, client=client, MODEL_NAME=MODEL_NAM
         system=system_prompt,
         temperature=0.1
     )
+    print('completion categorizador', answer)
 
     response = answer.content[0].text
     return {
