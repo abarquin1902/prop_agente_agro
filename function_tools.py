@@ -286,6 +286,6 @@ if __name__ == "__main__":
     # datos_embeddear = read_spreadsheets_data_and_generate_dict_embeds(file_path)
     # insert_datos_pauta(datos_embeddear)
 
-    #Proceso para probar el obtener el texto por relevancia
+    # Proceso para probar el obtener el texto por relevancia
     consulta = "mi cultivo de arandanos se ve enfermo, que crees que pueda ser ? "
     get_text_by_relevance(consulta)

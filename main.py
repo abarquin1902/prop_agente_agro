@@ -14,6 +14,7 @@ from tools import tools
 
 import base64
 import httpx
+import json
 import os
 import streamlit as st
 import time
@@ -104,6 +105,10 @@ def responder_usuario(messages, query, telefono="555555555", id_conversacion="",
                     "fecha_cita": tool_input['fecha_cita'],
                     "telefono": telefono
                 }
+                file_path_appointment = f"data_citas/cita_{tool_input['nombre_completo']}.txt"
+                with open(file_path_appointment, 'w') as f:
+                    f.write(json.dumps(user_data))
+                print(f"Cita Agendada y data almacenada en el documento: {file_path_appointment}")
 
                 # content = "Lo siento, no hay habitaciones disponibles del tipo solicitado para esas fechas. ¿Quieres probar con otro tipo o en otras fechas?"
                 content = "Tu cita ha sido agendada de forma exitosa."
