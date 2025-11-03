@@ -58,6 +58,18 @@ solicitud del cliente.
 PUEDES AGREGAR UN SOLO EMOJI.
 '''
 
+texto_agrocker = """
+El producto Agrocker es un coadyuvante agrícola para el control de Patógenos, 
+este producto ofrece tres beneficios principales:
+* Es selectivo : como solo cuenta con cargas moleculares negativas, 
+solo afecta a las enfermedades, no afecta a polinizadores ni organismos benéficos.
+* No erosiona el suelo : a diferencia de otros productos, Agrocker no daña 
+la estructura del suelo, ayudando a mantener su salud y fertilidad a largo plazo.
+* Ataca las moléculas de los patógenos, para que en su carga genética no hereden 
+la ressitencia al producto, además hace que se destruyan ellos mismos solos a nivel 
+celular porque ya no pueden tener la reproductividad.
+"""
+
 # system_prompt = f"""
 #     Vas a recibir los datos de un cliente que esta haciendo una cita para mas informes. Tienes 
 #     dos tareas:

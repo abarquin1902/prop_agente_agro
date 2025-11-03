@@ -9,7 +9,7 @@ from function_tools import (
     agregar_punto_individual
 )
 from supabase import create_client, Client
-from system_prompt import prompt_first_response, prompt_saludo
+from system_prompt import prompt_first_response, prompt_saludo, texto_agrocker
 from tools import tools
 
 import base64
@@ -59,6 +59,8 @@ def responder_usuario(messages, query, telefono="555555555", id_conversacion="",
 
     input_tokens = 0
     output_tokens = 0
+
+    system_prompt += f"ES LA ÚLTIMA INFORMACIÓN QUE PUEDES PROPORCIONAR DEL PRODUCTO 'AGROCKER' : {texto_agrocker}"
 
     response = client.messages.create(
         system=system_prompt,
